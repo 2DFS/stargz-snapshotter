@@ -513,12 +513,10 @@ func (l *layer) prefetch(ctx context.Context, prefetchSize int64) error {
 	}
 	rootID := l.verifiableReader.Metadata().RootID()
 	if _, _, err := l.verifiableReader.Metadata().GetChild(rootID, estargz.NoPrefetchLandmark); err == nil {
-		log.G(ctx).Logf(log.DebugLevel, "contains no prefetch landmark, layer: %s", l.desc.Digest)
 		// do not prefetch this layer
 		return nil
 	} else if id, _, err := l.verifiableReader.Metadata().GetChild(rootID, estargz.PrefetchLandmark); err == nil {
 		offset, err := l.verifiableReader.Metadata().GetOffset(id)
-		log.G(ctx).Logf(log.DebugLevel, "contains prefetch landmark, layer: %s, offset: %d", l.desc.Digest, offset)
 		if err != nil {
 			return fmt.Errorf("failed to get offset of prefetch landmark: %w", err)
 		}
@@ -543,7 +541,7 @@ func (l *layer) prefetch(ctx context.Context, prefetchSize int64) error {
 	// Fetch the target range
 	downloadStart := time.Now()
 	err := l.blob.Cache(0, prefetchSize)
-	commonmetrics.WriteLatencyLogValue(ctx, l.desc.Digest, commonmetrics.PrefetchDownload, downloadStart) // log donwload duration
+	commonmetrics.WriteLatencyLogValue(ctx, l.desc.Digest, commonmetrics.PrefetchDownload, downloadStart) // time to download prefetch data
 
 	if err != nil {
 		return fmt.Errorf("failed to prefetch layer: %w", err)

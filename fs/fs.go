@@ -233,11 +233,9 @@ func (fs *filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 		return fmt.Errorf("source must be passed")
 	}
 
-	defaultPrefetchSize := fs.prefetchSize // 0 by default
-	log.G(ctx).Logf(log.DebugLevel, "default prefetch size: %d\n", fs.prefetchSize)
+	defaultPrefetchSize := fs.prefetchSize
 	if psStr, ok := labels[config.TargetPrefetchSizeLabel]; ok {
 		if ps, err := strconv.ParseInt(psStr, 10, 64); err == nil {
-			log.G(ctx).Logf(log.DebugLevel, "changing prefetch size to: %d\n", ps)
 			defaultPrefetchSize = ps
 		}
 	}
@@ -253,8 +251,6 @@ func (fs *filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 			l, err := fs.resolver.Resolve(ctx, s.Hosts, s.Name, s.Target)
 			if err == nil {
 				resultChan <- l
-				// waits for layer to be resolved
-				log.G(ctx).Logf(log.DebugLevel, "[Mount1] calling prefetch for layer %s with prefetchSize %d", l.Info().Digest.String(), defaultPrefetchSize)
 				fs.prefetch(ctx, l, defaultPrefetchSize, start)
 				return
 			}
@@ -270,7 +266,6 @@ func (fs *filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 		layerPrefetchSize := fs.prefetchSize
 		if psStr, ok := desc.Annotations[config.TargetPrefetchSizeLabel]; ok {
 			if ps, err := strconv.ParseInt(psStr, 10, 64); err == nil {
-				log.G(ctx).Logf(log.DebugLevel, "changing neighbor prefetch size to: %d\n for layer %s", ps, desc.Digest.String())
 				layerPrefetchSize = ps
 			}
 		}
@@ -282,8 +277,6 @@ func (fs *filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 				log.G(ctx).WithError(err).Debug("failed to pre-resolve")
 				return
 			}
-			// called right away
-			log.G(ctx).Logf(log.DebugLevel, "[Mount2] calling prefetch for layer %s with prefetchSize %d", l.Info().Digest.String(), layerPrefetchSize)
 			fs.prefetch(ctx, l, layerPrefetchSize, start)
 
 			// Release this layer because this isn't target and we don't use it anymore here.

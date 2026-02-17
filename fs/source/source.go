@@ -25,7 +25,6 @@ import (
 	"github.com/containerd/containerd/v2/core/remotes/docker"
 	"github.com/containerd/containerd/v2/pkg/labels"
 	"github.com/containerd/containerd/v2/pkg/reference"
-	"github.com/containerd/log"
 	"github.com/containerd/stargz-snapshotter/fs/config"
 	digest "github.com/opencontainers/go-digest"
 	ocispec "github.com/opencontainers/image-spec/specs-go/v1"
@@ -243,7 +242,6 @@ func AppendExtraLabelsHandler(prefetchSize int64, wrapper func(images.Handler) i
 
 					// overridden with default size if not set
 					if _, ok := c.Annotations[config.TargetPrefetchSizeLabel]; !ok { // nop if this key is already set
-						log.G(ctx).Logf(log.DebugLevel, "setting annotation to: %d\n", prefetchSize)
 						c.Annotations[config.TargetPrefetchSizeLabel] = fmt.Sprintf("%d", prefetchSize)
 					}
 
@@ -265,7 +263,7 @@ func AppendExtraLabelsHandler(prefetchSize int64, wrapper func(images.Handler) i
 						if _, ok := c.Annotations[urlsKey]; !ok { // nop if this key is already set
 							c.Annotations[urlsKey] = appendWithValidation(urlsKey, l.URLs)
 						}
-						// Store prefetch size of the neighbouring layer as well.
+						// Store prefetch size of the neighboring layer
 						prefetchKey := targetImagePrefetchSizeLabelPrefix + fmt.Sprintf("%d", j)
 						if _, ok := c.Annotations[prefetchKey]; !ok { // nop if this key is already set
 							if ps, ok := l.Annotations[config.TargetPrefetchSizeLabel]; ok {
