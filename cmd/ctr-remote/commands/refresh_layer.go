@@ -32,8 +32,8 @@ const defaultSnapshotterAddress = "/run/containerd-stargz-grpc/containerd-stargz
 // RefreshLayerCommand refreshes a mounted layer to use a new blob digest.
 var RefreshLayerCommand = &cli.Command{
 	Name:      "refresh-layer",
-	Usage:     "refresh a mounted layer to use a new blob digest",
-	ArgsUsage: "<old_layer_digest> <new_blob_digest>",
+	Usage:     "refresh a mounted layer to use a new layer digest",
+	ArgsUsage: "<old_layer_digest> <new_layer_digest>",
 	Flags: []cli.Flag{
 		&cli.StringFlag{
 			Name:  "snapshotter-address",
@@ -45,7 +45,7 @@ var RefreshLayerCommand = &cli.Command{
 		oldDigestStr := clicontext.Args().Get(0)
 		newDigestStr := clicontext.Args().Get(1)
 		if oldDigestStr == "" || newDigestStr == "" {
-			return errors.New("both <old_layer_digest> and <new_blob_digest> must be specified")
+			return errors.New("both <old_layer_digest> and <new_layer_digest> must be specified")
 		}
 
 		// Validate digests.
@@ -53,7 +53,7 @@ var RefreshLayerCommand = &cli.Command{
 			return fmt.Errorf("invalid old layer digest %q: %w", oldDigestStr, err)
 		}
 		if _, err := digest.Parse(newDigestStr); err != nil {
-			return fmt.Errorf("invalid new blob digest %q: %w", newDigestStr, err)
+			return fmt.Errorf("invalid new layer digest %q: %w", newDigestStr, err)
 		}
 
 		addr := clicontext.String("snapshotter-address")

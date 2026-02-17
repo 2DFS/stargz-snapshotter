@@ -452,7 +452,7 @@ func (fs *filesystem) RefreshLayer(ctx context.Context, oldDigest, newDigest dig
 	fs.layerMu.Unlock()
 
 	if targetLayer == nil {
-		return fmt.Errorf("layer with digest %s not found among mounted layers (have %d layers)", oldDigest, len(fs.layer))
+		return fmt.Errorf("layer with digest %s not found among mounted layers", oldDigest)
 	}
 
 	newDesc := ocispec.Descriptor{Digest: newDigest}

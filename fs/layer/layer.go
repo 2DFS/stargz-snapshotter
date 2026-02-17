@@ -451,7 +451,7 @@ type layer struct {
 	verifiableReader *reader.VerifiableReader
 	hosts            source.RegistryHosts
 	refspec          reference.Spec
-	rr               *readerRef // shared with FUSE nodes for atomic swap
+	rr               *readerRef
 	rootInode        *fusefs.Inode
 	prefetchWaiter   *waiter
 

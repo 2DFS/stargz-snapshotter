@@ -261,7 +261,7 @@ func main() {
 			log.G(ctx).WithError(err).Fatalf("failed to configure snapshotter")
 		}
 
-		// Register the layer refresh gRPC service if the filesystem supports it.
+		// Register the layer refresh gRPC service if the filesystem supports it
 		if refresher, ok := sfs.(fspb.LayerRefresher); ok {
 			fspb.RegisterStargzControlServer(rpc, fspb.NewControlServer(refresher))
 			log.G(ctx).Info("registered layer refresh gRPC service")
