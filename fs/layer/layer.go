@@ -495,7 +495,7 @@ func (l *layer) Prefetch(prefetchSize int64) (err error) {
 			log.G(ctx).WithError(err).Warnf("failed to prefetch layer=%v", l.desc.Digest)
 			return
 		}
-		log.G(ctx).Debug("completed to prefetch")
+		log.G(ctx).Debug("completed to prefetch for layer: %s", l.desc.Digest)
 	})
 	return
 }
@@ -526,6 +526,7 @@ func (l *layer) prefetch(ctx context.Context, prefetchSize int64) error {
 		// adjust prefetch size not to exceed the whole layer size
 		prefetchSize = l.blob.Size()
 	}
+	log.G(ctx).Logf(log.DebugLevel, "actual prefetch size: %d\n for layer %s", prefetchSize, l.desc.Digest)
 
 	threshold := l.resolver.config.PrefetchAsyncSize
 	if threshold > 0 && prefetchSize > threshold {

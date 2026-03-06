@@ -263,6 +263,12 @@ func (fs *filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 	preResolve := src[0] // TODO: should we pre-resolve blobs in other sources as well?
 	for _, desc := range neighboringLayers(preResolve.Manifest, preResolve.Target) {
 		desc := desc
+		layerPrefetchSize := fs.prefetchSize
+		if psStr, ok := desc.Annotations[config.TargetPrefetchSizeLabel]; ok {
+			if ps, err := strconv.ParseInt(psStr, 10, 64); err == nil {
+				layerPrefetchSize = ps
+			}
+		}
 		go func() {
 			// Avoids to get canceled by client.
 			ctx := log.WithLogger(context.Background(), log.G(ctx).WithField("mountpoint", mountpoint))
@@ -271,7 +277,7 @@ func (fs *filesystem) Mount(ctx context.Context, mountpoint string, labels map[s
 				log.G(ctx).WithError(err).Debug("failed to pre-resolve")
 				return
 			}
-			fs.prefetch(ctx, l, defaultPrefetchSize, start)
+			fs.prefetch(ctx, l, layerPrefetchSize, start)
 
 			// Release this layer because this isn't target and we don't use it anymore here.
 			// However, this will remain on the resolver cache until eviction.
